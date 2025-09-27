@@ -50,7 +50,7 @@ struct rk_timer
 
     int irq;
     rt_uint32_t freq;
-    rt_uint32_t cycle;
+    rt_uint64_t cycle;
     rt_bool_t status;
 
     struct rt_hwtimer_info info;
@@ -88,10 +88,10 @@ rt_inline rt_uint32_t rk_timer_current_value(struct rk_timer *timer)
     return HWREG32(timer->base + TIMER_CURRENT_VALUE0);
 }
 
-static void rk_timer_update_counter(unsigned long cycles, struct rk_timer *timer)
+static void rk_timer_update_counter(rt_uint64_t cycles, struct rk_timer *timer)
 {
-    HWREG32(timer->base + TIMER_LOAD_COUNT0) = cycles;
-    HWREG32(timer->base + TIMER_LOAD_COUNT1) = 0;
+    HWREG32(timer->base + TIMER_LOAD_COUNT0) = (rt_uint32_t)(cycles & RT_UINT32_MAX);
+    HWREG32(timer->base + TIMER_LOAD_COUNT1) = (rt_uint32_t)(cycles >> 32);
 }
 
 static void rk_timer_interrupt_clear(struct rk_timer *timer)
@@ -103,7 +103,7 @@ static void rk_timer_init(struct rt_hwtimer_device *timer, rt_uint32_t state)
 {
 }
 
-static rt_err_t rk_timer_start(struct rt_hwtimer_device *timer, rt_uint32_t cnt, rt_hwtimer_mode_t mode)
+static rt_err_t rk_timer_start(struct rt_hwtimer_device *timer, rt_uint64_t cnt, rt_hwtimer_mode_t mode)
 {
     rt_err_t err = RT_EOK;
     struct rk_timer *rk_timer = raw_to_rk_timer(timer);
