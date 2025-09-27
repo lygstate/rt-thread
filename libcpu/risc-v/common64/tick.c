@@ -63,12 +63,12 @@ int rt_hw_tick_init(void)
  */
 void rt_hw_us_delay(rt_uint32_t us)
 {
-    unsigned long start_time;
-    unsigned long end_time;
-    unsigned long run_time;
+    rt_uint64_t start_time;
+    rt_uint64_t end_time;
+    rt_uint64_t run_time;
 
     start_time = clock_cpu_gettime();
-    end_time = start_time + us * (CPUTIME_TIMER_FREQ / 1000000);
+    end_time = start_time + rt_muldiv_u32(us, CPUTIME_TIMER_FREQ, 1000000, NULL);
     do
     {
         run_time = clock_cpu_gettime();
